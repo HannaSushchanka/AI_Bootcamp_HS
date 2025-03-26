@@ -1,8 +1,10 @@
-package com.company.bootcamp.task1.configuration;
+package com.company.bootcamp.task2.configuration;
 
 import com.azure.ai.openai.OpenAIAsyncClient;
 import com.azure.ai.openai.OpenAIClientBuilder;
-import com.company.bootcamp.task1.plugins.SimplePlugin;
+import com.azure.core.credential.AzureKeyCredential;
+import com.company.bootcamp.task2.plugins.SimplePlugin;
+
 import com.microsoft.semantickernel.Kernel;
 import com.microsoft.semantickernel.aiservices.openai.chatcompletion.OpenAIChatCompletion;
 import com.microsoft.semantickernel.orchestration.InvocationContext;
@@ -10,11 +12,14 @@ import com.microsoft.semantickernel.orchestration.PromptExecutionSettings;
 import com.microsoft.semantickernel.plugin.KernelPlugin;
 import com.microsoft.semantickernel.plugin.KernelPluginFactory;
 import com.microsoft.semantickernel.services.chatcompletion.ChatCompletionService;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.Map;
+
+import lombok.AllArgsConstructor;
 
 /**
  * Configuration class for setting up Semantic Kernel components.
@@ -25,19 +30,15 @@ import java.util.Map;
  * and prompt execution settings.
  */
 @Configuration
+@AllArgsConstructor
 public class SemanticKernelConfiguration {
-
-    @Value("${client-openai-key}")
-    private String openaiApiKey;
-
-    @Value("${client-openai-endpoint}")
-    private String openaiEndpoint;
+    private OpenAIConfiguration configuration;
 
     @Bean(name = "semanticKernelOpenAIAsyncClient")
     public OpenAIAsyncClient semanticKernelOpenAIAsyncClient() {
         return new OpenAIClientBuilder()
-                .credential(new com.azure.core.credential.AzureKeyCredential(openaiApiKey))
-                .endpoint(openaiEndpoint)
+                .credential(new AzureKeyCredential(configuration.getOpenAIKey()))
+                .endpoint(configuration.getEndpoint())
                 .buildAsyncClient();
     }
 
@@ -92,8 +93,8 @@ public class SemanticKernelConfiguration {
     public InvocationContext invocationContext() {
         return InvocationContext.builder()
                 .withPromptExecutionSettings(PromptExecutionSettings.builder()
-                        .withTemperature(0.2)
-                        .withMaxTokens(4096)
+                        .withTemperature(configuration.getTemperature())
+                        .withMaxTokens(configuration.getMaxTokens())
                         .build())
                 .build();
     }
@@ -108,8 +109,8 @@ public class SemanticKernelConfiguration {
     public Map<String, PromptExecutionSettings> promptExecutionsSettingsMap(@Value("${client-openai-deployment-name}")
                                                                             String deploymentOrModelName) {
         return Map.of(deploymentOrModelName, PromptExecutionSettings.builder()
-                .withTemperature(0.2)
-                .withMaxTokens(4096)
+                .withTemperature(configuration.getTemperature())
+                .withMaxTokens(configuration.getMaxTokens())
                 .build());
     }
 

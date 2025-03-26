@@ -1,4 +1,4 @@
-package com.company.bootcamp.task1;
+package com.company.bootcamp.task2;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
