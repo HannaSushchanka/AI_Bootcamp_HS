@@ -1,9 +1,9 @@
-package com.company.bootcamp.task2.configuration;
+package com.company.bootcamp.task3.configuration;
 
 import com.azure.ai.openai.OpenAIAsyncClient;
 import com.azure.ai.openai.OpenAIClientBuilder;
 import com.azure.core.credential.AzureKeyCredential;
-import com.company.bootcamp.task2.plugins.SimplePlugin;
+import com.company.bootcamp.task3.plugins.SimplePlugin;
 
 import com.microsoft.semantickernel.Kernel;
 import com.microsoft.semantickernel.aiservices.openai.chatcompletion.OpenAIChatCompletion;

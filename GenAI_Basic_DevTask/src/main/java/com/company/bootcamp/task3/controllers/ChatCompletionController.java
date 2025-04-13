@@ -1,7 +1,7 @@
-package com.company.bootcamp.task2.controllers;
+package com.company.bootcamp.task3.controllers;
 
-import com.company.bootcamp.task2.services.ChatService;
-import com.company.bootcamp.task2.services.ChatHistoryService;
+import com.company.bootcamp.task3.services.ChatService;
+import com.company.bootcamp.task3.services.ChatHistoryService;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,15 +31,19 @@ public class ChatCompletionController {
     }
 
     @GetMapping("/history")
-    public Mono<ResponseEntity<String>> getResponse(@RequestParam String prompt, ServerWebExchange exchange) {
+    public Mono<ResponseEntity<String>> getResponse(@RequestParam String prompt, @RequestParam String modelName, ServerWebExchange exchange) {
         log.info("Received prompt: {}", prompt);
         return exchange.getSession()
                 .flatMap(session -> {
                     String chatHistory = session.getAttribute("chatHistory");
-                    return Mono.fromCallable(() -> chatHistoryService.processWithHistory(prompt, chatHistory));
+                    return Mono.fromCallable(() -> chatHistoryService.processWithHistory(prompt, chatHistory,modelName));
                 })
                 .map(ResponseEntity::ok);
     }
 
+    @GetMapping("/multi-model-chat")
+    public Mono<ResponseEntity<List<String>>> getMultiModelResponse(@RequestParam String prompt, @RequestParam String modelName) {
+        return Mono.just(chatService.generateMultiModelResponse(prompt, modelName)).map(ResponseEntity::ok);
+    }
 
 }

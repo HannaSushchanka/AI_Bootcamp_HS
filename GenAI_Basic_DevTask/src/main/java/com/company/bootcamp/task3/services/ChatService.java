@@ -1,10 +1,11 @@
-package com.company.bootcamp.task2.services;
+package com.company.bootcamp.task3.services;
 
 import java.util.List;
 
 import com.azure.ai.openai.models.ChatCompletions;
 import com.azure.ai.openai.models.ChatCompletionsOptions;
 import com.azure.ai.openai.models.ChatRequestUserMessage;
+import com.microsoft.semantickernel.services.chatcompletion.ChatHistory;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -16,11 +17,13 @@ import lombok.extern.slf4j.Slf4j;
 public class ChatService {
     private final OpenAIAsyncClientService aiAsyncClientService;
     private final String deploymentOrModelName;
+    private final ChatHistoryService chatHistoryService;
 
-    public ChatService(OpenAIAsyncClientService aiAsyncClientService,
+    public ChatService(OpenAIAsyncClientService aiAsyncClientService, ChatHistoryService chatHistoryService,
                        @Value("${client-openai-deployment-name}")String deploymentOrModelName) {
         this.aiAsyncClientService = aiAsyncClientService;
         this.deploymentOrModelName = deploymentOrModelName;
+        this.chatHistoryService = chatHistoryService;
     }
 
     public List<String> generateResponse(String message) {
@@ -38,4 +41,7 @@ public class ChatService {
         return messages;
     }
 
+    public List<String> generateMultiModelResponse(String prompt, String modelName) {
+        return chatHistoryService.getGeneration(prompt, modelName, new ChatHistory());
+    }
 }
