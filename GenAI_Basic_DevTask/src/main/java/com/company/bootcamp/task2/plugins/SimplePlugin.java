@@ -1,9 +1,8 @@
-package com.company.bootcamp.task1.plugins;
+package com.company.bootcamp.task2.plugins;
 
 import com.azure.ai.openai.OpenAIAsyncClient;
 
 import com.azure.ai.openai.models.ChatRequestMessage;
-import com.azure.ai.openai.models.ChatRole;
 import com.azure.ai.openai.models.ChatCompletionsOptions;
 import com.microsoft.semantickernel.semanticfunctions.annotations.DefineKernelFunction;
 import com.microsoft.semantickernel.semanticfunctions.annotations.KernelFunctionParameter;
