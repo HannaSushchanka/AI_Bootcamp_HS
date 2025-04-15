@@ -12,6 +12,7 @@ import com.microsoft.semantickernel.orchestration.PromptExecutionSettings;
 import com.microsoft.semantickernel.plugin.KernelPlugin;
 import com.microsoft.semantickernel.plugin.KernelPluginFactory;
 import com.microsoft.semantickernel.services.chatcompletion.ChatCompletionService;
+import com.microsoft.semantickernel.services.chatcompletion.ChatHistory;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -112,6 +113,11 @@ public class SemanticKernelConfiguration {
                 .withTemperature(configuration.getTemperature())
                 .withMaxTokens(configuration.getMaxTokens())
                 .build());
+    }
+
+    @Bean
+    public ChatHistory chatHistory() {
+        return new ChatHistory();
     }
 
 }
