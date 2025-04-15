@@ -1,13 +1,13 @@
 package com.company.bootcamp.task3.services;
 
-import java.util.List;
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.company.bootcamp.task3.configuration.MultiModelConfiguration;
+import com.company.bootcamp.task3.model.ModelsRS;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -15,20 +15,22 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ModelService {
 
-    @Autowired
-    private MultiModelConfiguration multiModelConfiguration;
+    private final DeploymentService deploymentService;
+    private final ObjectMapper objectMapper;
 
-    public String findCapabilityByModelName(String modelName) {
-        Map<String, String> capabilities = multiModelConfiguration.getCapabilities();
-        if (capabilities == null) {
-            log.error("Capabilities map is null");
-            return "Configuration error: Capabilities not loaded";
+    public ModelService(DeploymentService deploymentService, ObjectMapper objectMapper) {
+        this.deploymentService = deploymentService;
+        this.objectMapper = objectMapper;
+    }
+
+    public Map<String, ModelsRS.ModelDetails> getModelCapabilities() throws IOException {
+        ModelsRS response = objectMapper.readValue(deploymentService.fetchDeployments(), ModelsRS.class);
+        Map<String, ModelsRS.ModelDetails> modelDetailsMap = new HashMap<>();
+
+        for (ModelsRS.ModelDetails modelDetail : response.getModelDetails()) {
+            modelDetailsMap.put(modelDetail.getId(), modelDetail);
         }
-        Optional<String> capabilityFound = capabilities.entrySet().stream()
-                .filter(entry -> entry.getValue().contains(modelName))
-                .map(Map.Entry::getKey)
-                .findFirst();
 
-        return capabilityFound.orElse("No capability found for the model: " + modelName);
+        return modelDetailsMap;
     }
 }
