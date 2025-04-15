@@ -1,15 +1,19 @@
 package com.company.bootcamp.task3.services;
 
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.springframework.stereotype.Service;
 
 import com.azure.ai.openai.OpenAIAsyncClient;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.semantickernel.Kernel;
 import com.microsoft.semantickernel.services.chatcompletion.ChatHistory;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Mono;
 
 @Service
 @Slf4j
@@ -20,42 +24,52 @@ public class ChatHistoryService {
     private ObjectMapper objectMapper;
     private final OpenAIAsyncClient aiAsyncClient;
 
+    private static final String CHAT_HISTORIES = "chatHistories";
 
-//    public String processWithHistory(String prompt, String chatHistoryJson, String modelName) throws IOException {
-//        ChatHistory chatHistory = deserializeChatHistory(chatHistoryJson);
-//
-//        String response;
-//        response = String.valueOf(getGenerationByType(prompt, modelName, chatHistory));
-//
-//        log.info("Response: {}", response);
-//        return response;
-//    }
-
-//    /**
-//     * Creates the kernel function arguments with the user prompt and chat history.
-//     *
-//     * @param prompt the user's input
-//     * @param chatHistory the current chat history
-//     * @return a {@link KernelFunctionArguments} instance containing the variables for the AI model
-//     */
-
-
-    private void updateChatHistory(ChatHistory chatHistory, String userMessage, String assistantMessage) {
-        chatHistory.addUserMessage(userMessage);
-        chatHistory.addAssistantMessage(assistantMessage);
+    public Mono<Map<String, ChatHistory>> getChatHistories(Map<String, Object> sessionAttributes) {
+        @SuppressWarnings("unchecked")
+        Map<String, ChatHistory> chatHistories = (Map<String, ChatHistory>) sessionAttributes.get(CHAT_HISTORIES);
+        if (chatHistories == null) {
+            chatHistories = new ConcurrentHashMap<>();
+            sessionAttributes.put(CHAT_HISTORIES, chatHistories);
+        }
+        return Mono.just(chatHistories);
     }
 
-    private ChatHistory deserializeChatHistory(String chatHistoryJson) {
-        if (chatHistoryJson == null) {
-            return new ChatHistory();
+    public Mono<Void> saveChatHistory(Map<String, Object> sessionAttributes, String chatId, ChatHistory chatHistory) {
+        @SuppressWarnings("unchecked")
+        Map<String, ChatHistory> chatHistories = (Map<String, ChatHistory>) sessionAttributes.get(CHAT_HISTORIES);
+        if (chatHistories == null) {
+            chatHistories = new ConcurrentHashMap<>();
+            sessionAttributes.put(CHAT_HISTORIES, chatHistories);
         }
-        try {
-            return objectMapper.readValue(chatHistoryJson, ChatHistory.class);
-        } catch (JsonProcessingException e) {
-            log.error("Error deserializing chat history: {}", e.getMessage());
-            return new ChatHistory();
-        }
+        chatHistories.put(chatId, chatHistory);
+        return Mono.empty();
     }
+
+    public Mono<Void> clearChatHistory(Map<String, Object> sessionAttributes, String chatId) {
+        @SuppressWarnings("unchecked")
+        Map<String, ChatHistory> chatHistories = (Map<String, ChatHistory>) sessionAttributes.get(CHAT_HISTORIES);
+        if (chatHistories != null) {
+            chatHistories.remove(chatId);
+        }
+        return Mono.empty();
+    }
+
+    public String generateChatId() {
+        return UUID.randomUUID().toString();
+    }
+
+    public Mono<ChatHistory> getOrCreateChatHistory(Map<String, Object> sessionAttributes, String chatId) {
+        @SuppressWarnings("unchecked")
+        Map<String, ChatHistory> histories = (Map<String, ChatHistory>) sessionAttributes.get(CHAT_HISTORIES);
+        if (histories == null) {
+            histories = new ConcurrentHashMap<>();
+            sessionAttributes.put(CHAT_HISTORIES, histories);
+        }
+        return Mono.just(histories.computeIfAbsent(chatId, k -> new ChatHistory()));
+    }
+
 }
 
 
