@@ -1,4 +1,4 @@
-package com.company.bootcamp.task2.plugins;
+package com.company.bootcamp.task3.plugins;
 
 import com.azure.ai.openai.OpenAIAsyncClient;
 

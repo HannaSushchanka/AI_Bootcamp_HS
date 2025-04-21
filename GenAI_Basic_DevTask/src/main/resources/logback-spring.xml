@@ -1,0 +1,16 @@
+<configuration>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="STDOUT" />
+    </root>
+
+    <!-- Example to increase logging level for a specific package -->
+    <logger name="com.company.bootcamp.task3" level="DEBUG" additivity="false">
+        <appender-ref ref="STDOUT" />
+    </logger>
+</configuration>

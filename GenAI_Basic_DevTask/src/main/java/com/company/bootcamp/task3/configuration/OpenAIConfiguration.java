@@ -1,4 +1,4 @@
-package com.company.bootcamp.task2.configuration;
+package com.company.bootcamp.task3.configuration;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;

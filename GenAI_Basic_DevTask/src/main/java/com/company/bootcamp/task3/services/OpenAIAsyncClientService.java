@@ -1,11 +1,11 @@
-package com.company.bootcamp.task2.services;
+package com.company.bootcamp.task3.services;
 
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
 import com.azure.ai.openai.OpenAIAsyncClient;
-import com.company.bootcamp.task2.configuration.OpenAIConfiguration;
+import com.company.bootcamp.task3.configuration.OpenAIConfiguration;
 import com.microsoft.semantickernel.connectors.ai.openai.util.ClientType;
 import com.microsoft.semantickernel.connectors.ai.openai.util.OpenAIClientProvider;
 import com.microsoft.semantickernel.exceptions.ConfigurationException;
@@ -23,7 +23,6 @@ public class OpenAIAsyncClientService {
                 "client.openai.endpoint", configuration.getEndpoint(),
                 "client.openai.deploymentname", configuration.getDeploymentName()
         );
-
     }
 
 
