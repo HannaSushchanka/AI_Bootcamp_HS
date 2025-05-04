@@ -11,7 +11,7 @@ import com.azure.ai.openai.models.ChatCompletionsOptions;
 import com.azure.ai.openai.models.ChatRequestUserMessage;
 
 
-import com.company.bootcamp.task4.configuration.OpenAIConfiguration;
+import com.company.bootcamp.task5.configuration.OpenAIConfiguration;
 import com.company.bootcamp.task4.configuration.exceptions.ModelNotFoundException;
 import com.company.bootcamp.task4.model.ModelsRQ;
 import com.company.bootcamp.task4.utils.GenerationUtils;

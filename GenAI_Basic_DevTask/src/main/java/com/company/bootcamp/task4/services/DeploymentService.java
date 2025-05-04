@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import com.company.bootcamp.task4.configuration.OpenAIConfiguration;
+import com.company.bootcamp.task5.configuration.OpenAIConfiguration;
 
 @Service
 public class DeploymentService {

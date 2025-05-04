@@ -1,4 +1,4 @@
-package com.company.bootcamp.task4.configuration;
+package com.company.bootcamp.task5.configuration;
 
 import com.azure.ai.openai.OpenAIAsyncClient;
 import com.azure.ai.openai.OpenAIClientBuilder;
@@ -6,7 +6,6 @@ import com.azure.core.credential.AzureKeyCredential;
 import com.company.bootcamp.task4.plugins.SimplePlugin;
 
 import com.company.bootcamp.task4.plugins.TriathlonWorkoutPlugin;
-import com.company.bootcamp.task4.services.plugin.WorkoutService;
 import com.microsoft.semantickernel.Kernel;
 import com.microsoft.semantickernel.aiservices.openai.chatcompletion.OpenAIChatCompletion;
 import com.microsoft.semantickernel.orchestration.InvocationContext;
@@ -133,6 +132,5 @@ public class SemanticKernelConfiguration {
     public ChatHistory chatHistory() {
         return new ChatHistory();
     }
-
 }
 

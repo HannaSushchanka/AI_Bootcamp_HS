@@ -5,7 +5,7 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 
 import com.azure.ai.openai.OpenAIAsyncClient;
-import com.company.bootcamp.task4.configuration.OpenAIConfiguration;
+import com.company.bootcamp.task5.configuration.OpenAIConfiguration;
 import com.microsoft.semantickernel.connectors.ai.openai.util.ClientType;
 import com.microsoft.semantickernel.connectors.ai.openai.util.OpenAIClientProvider;
 import com.microsoft.semantickernel.exceptions.ConfigurationException;
