@@ -9,7 +9,7 @@
         <version>3.4.4</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.company.bootcamp.task2</groupId>
+    <groupId>com.company.bootcamp.task5</groupId>
     <artifactId>GenAI_Basic_DevTask</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 

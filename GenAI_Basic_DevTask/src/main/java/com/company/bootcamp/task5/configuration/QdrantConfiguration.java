@@ -2,6 +2,8 @@ package com.company.bootcamp.task5.configuration;
 
 import io.qdrant.client.QdrantClient;
 import io.qdrant.client.QdrantGrpcClient;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -16,6 +18,15 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class QdrantConfiguration {
 
+    @Value("${qdrant.host}")
+    private String host;
+
+    @Value("${qdrant.port}")
+    private int port;
+
+    @Value("${qdrant.useTLS}")
+    private boolean useTLS;
+
     /**
      * Creates a {@link QdrantClient} bean for interacting with the Qdrant service.
      *
@@ -23,7 +34,7 @@ public class QdrantConfiguration {
      */
     @Bean
     public QdrantClient qdrantClient() {
-        return new QdrantClient(QdrantGrpcClient.newBuilder("localhost", 6334, false).build());
+        return new QdrantClient(QdrantGrpcClient.newBuilder(host, port, useTLS).build());
     }
 }
 
