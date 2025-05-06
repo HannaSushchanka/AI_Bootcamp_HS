@@ -3,6 +3,7 @@ package com.company.bootcamp.task5.services;
 import com.company.bootcamp.task5.model.QdrantVectorRQ;
 import com.company.bootcamp.task5.model.QdrantVectorRS;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import com.microsoft.semantickernel.Kernel;
 import com.microsoft.semantickernel.aiservices.openai.textembedding.OpenAITextEmbeddingGenerationService;
 import com.microsoft.semantickernel.services.ServiceNotFoundException;
@@ -12,6 +13,8 @@ import io.qdrant.client.grpc.JsonWithInt;
 import io.qdrant.client.grpc.Points;
 import io.qdrant.client.grpc.Points.PointStruct;
 import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -20,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
@@ -41,62 +45,54 @@ public class EmbeddingService {
         this.qdrantService = qdrantService;
     }
 
-    public List<Embedding> build(String text) {
-        OpenAITextEmbeddingGenerationService embeddingGenerationService = null;
+    public Mono<List<Embedding>> build(String text) {
+        OpenAITextEmbeddingGenerationService embeddingGenerationService;
         try {
             embeddingGenerationService = kernel.getService(OpenAITextEmbeddingGenerationService.class);
         } catch (ServiceNotFoundException e) {
-            throw new RuntimeException(e);
+            return Mono.error(new RuntimeException(e));
         }
-        List<Embedding> generatedEmbeddingsAsync = embeddingGenerationService.generateEmbeddingsAsync(List.of(text))
-                .block();
 
-        assert generatedEmbeddingsAsync != null;
-        generatedEmbeddingsAsync.forEach(embedding -> log.info("** {}", embedding.getVector()));
-        return generatedEmbeddingsAsync;
+        return embeddingGenerationService.generateEmbeddingsAsync(List.of(text))
+                .doOnNext(embeddings -> embeddings.forEach(embedding -> log.info("** {}", embedding.getVector())));
     }
 
 
-    public void store(List<Map<String, Object>> input) {
-        input.forEach(stringObjectMap -> {
-            Map<String, JsonWithInt.Value> payload = generatePayload(stringObjectMap);
-            String prompt = getGenericSummarizedString(payload);
-            List<Embedding> embeddings = build(prompt);
-            List<Points.UpdateResult> response = embeddings.stream().map(embedding -> {
-                QdrantVectorRQ request = QdrantVectorRQ.builder()
-                        .id(UUID.randomUUID())
-                        .vector(embedding.getVector())
-                        .payload(payload)
-                        .build();
-                try {
-                    Points.UpdateResult result = qdrantService.addVector(COLLECTION_NAME, request).get();
-                    log.info("Vector saved with Id : {}", result.getOperationId());
-                    return result;
-                } catch (ExecutionException | InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }).toList();
-        });
+    public Mono<Void> store(List<Map<String, Object>> input) {
+        return Flux.fromIterable(input)
+                .flatMap(stringObjectMap -> {
+                    Map<String, JsonWithInt.Value> payload = generatePayload(stringObjectMap);
+                    String prompt = getGenericSummarizedString(payload);
+                    return build(prompt)
+                            .flatMapMany(Flux::fromIterable)
+                            .flatMap(embedding -> {
+                                QdrantVectorRQ request = QdrantVectorRQ.builder()
+                                        .id(UUID.randomUUID())
+                                        .vector(embedding.getVector())
+                                        .payload(payload)
+                                        .build();
+                                return qdrantService.addVector(COLLECTION_NAME, request)
+                                        .doOnNext(result -> log.info("Vector saved with Id : {}", result.getOperationId()));
+                            });
+                })
+                .then();
     }
 
 
-    public List<QdrantVectorRS> search(String prompt) {
-        List<Embedding> embeddings = build(prompt);
-        List<Points.ScoredPoint> response = null;
-        try {
-            response = qdrantService.searchVectors(COLLECTION_NAME, embeddings);
-        } catch (ExecutionException | InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        return response.stream().map(scoredPoint -> QdrantVectorRS.builder()
-                .id(scoredPoint.getId().getUuid())
-                .payload(scoredPoint.getPayloadMap().entrySet()
-                        .stream()
-                        .collect(Collectors.toMap(Map.Entry::getKey, o -> o.getValue()
-                                .toString().split(":")[1].trim().replace("\"", ""))))
-                .similarityScore(scoredPoint.getScore())
-                .version(scoredPoint.getVersion())
-                .build()).toList();
+    public Mono<List<QdrantVectorRS>> search(String prompt) {
+        return build(prompt)
+                .flatMapMany(Flux::fromIterable)
+                .collectList()
+                .flatMap(embeddings -> qdrantService.searchVectors(COLLECTION_NAME, embeddings))
+                .map(response -> response.stream().map(scoredPoint -> QdrantVectorRS.builder()
+                        .id(scoredPoint.getId().getUuid())
+                        .payload(scoredPoint.getPayloadMap().entrySet()
+                                .stream()
+                                .collect(Collectors.toMap(Map.Entry::getKey, o -> o.getValue()
+                                        .toString().split(":")[1].trim().replace("\"", ""))))
+                        .similarityScore(scoredPoint.getScore())
+                        .version(scoredPoint.getVersion())
+                        .build()).toList());
     }
 
 

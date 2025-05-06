@@ -1,24 +1,13 @@
 package com.company.bootcamp.task5.controllers;
 
-import java.util.UUID;
-import java.util.concurrent.ExecutionException;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.company.bootcamp.task5.model.QdrantVectorRQ;
 import com.company.bootcamp.task5.services.QdrantService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
-import io.qdrant.client.grpc.Collections;
-import io.qdrant.client.grpc.Points;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/qdrant")
@@ -30,60 +19,62 @@ public class QdrantController {
     }
 
     @PostMapping("/collection/create/{name}")
-    public ResponseEntity<String> createCollection(@PathVariable String name) throws ExecutionException, InterruptedException {
-
-        Collections.CollectionOperationResponse response = qdrantService.createCollection(name);
-        if (response.getResult()) {
-            return ResponseEntity.status(HttpStatus.CREATED).body("Collection created successfully " + name);
-        } else {
-            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("Failed to create " + name);
-        }
+    public Mono<ResponseEntity<String>> createCollection(@PathVariable String name) {
+        return qdrantService.createCollection(name)
+                .map(response -> response.getResult()
+                        ? ResponseEntity.status(HttpStatus.CREATED).body("Collection created successfully: " + name)
+                        : ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("Failed to create collection: " + name))
+                .onErrorResume(e -> Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body("Error creating collection: " + e.getMessage())));
     }
-
 
     @DeleteMapping("/collection/delete/{name}")
-    public ResponseEntity<String> deleteCollection(@PathVariable String name) throws ExecutionException, InterruptedException {
-        Collections.CollectionOperationResponse response = qdrantService.deleteCollection(name);
-
-        if (response.getResult()) {
-            return ResponseEntity.status(HttpStatus.OK).body("Collection deleted successfully " + name);
-        } else {
-            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("Failed to delete " + name);
-        }
+    public Mono<ResponseEntity<String>> deleteCollection(@PathVariable String name) {
+        return qdrantService.deleteCollection(name)
+                .map(response -> response.getResult()
+                        ? ResponseEntity.ok("Collection deleted successfully: " + name)
+                        : ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("Failed to delete collection: " + name))
+                .onErrorResume(e -> Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body("Error deleting collection: " + e.getMessage())));
     }
 
-
     @PostMapping("/{collectionName}/vector/add")
-    public ResponseEntity<String> addVector(@PathVariable String collectionName, @RequestBody QdrantVectorRQ request) throws ExecutionException, InterruptedException {
-        qdrantService.addVector(collectionName, request);
-        return ResponseEntity.ok("Vector inserted with ID: " + request.getId());
+    public Mono<ResponseEntity<String>> addVector(@PathVariable String collectionName, @RequestBody QdrantVectorRQ request) {
+        return qdrantService.addVector(collectionName, request)
+                .map(result -> ResponseEntity.ok("Vector inserted with ID: " + request.getId()))
+                .onErrorResume(e -> Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body("Failed to insert vector: " + e.getMessage())));
     }
 
     @GetMapping("/{collectionName}/vector/{id}")
-    public ResponseEntity<Points.RetrievedPoint> getVector(@PathVariable String collectionName, @PathVariable UUID id) throws ExecutionException, InterruptedException {
-        var response = qdrantService.getVector(collectionName, id);
-        if (response != null && !response.get().get(0).isInitialized()) {
-            return ResponseEntity.ok(response.get().get(0));
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    public Mono<ResponseEntity<?>> getVector(@PathVariable String collectionName, @PathVariable UUID id) {
+        return qdrantService.getVector(collectionName, id)
+                .flatMap(response -> response.isEmpty()
+                        ? Mono.just(ResponseEntity.notFound().build())
+                        : Mono.just(ResponseEntity.ok(response.get(0))))
+                .onErrorResume(e -> Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()));
     }
 
     @DeleteMapping("/{collectionName}/vector/{id}")
-    public ResponseEntity<String> deleteVector(@PathVariable String collectionName, @PathVariable UUID id) throws ExecutionException, InterruptedException {
-        qdrantService.deleteVector(collectionName, id);
-        return ResponseEntity.ok("Vector deleted for ID: " + id);
+    public Mono<ResponseEntity<String>> deleteVector(@PathVariable String collectionName, @PathVariable UUID id) {
+        return qdrantService.deleteVector(collectionName, id)
+                .map(result -> ResponseEntity.ok("Vector deleted for ID: " + id))
+                .onErrorResume(e -> Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body("Failed to delete vector: " + e.getMessage())));
     }
 
     @PutMapping("/{collectionName}/vector/update")
-    public ResponseEntity<String> updateVector(@PathVariable String collectionName, @RequestBody QdrantVectorRQ request) throws ExecutionException, InterruptedException {
-        qdrantService.updateVector(collectionName, request);
-        return ResponseEntity.ok("Vector inserted with ID: " + request.getId());
+    public Mono<ResponseEntity<String>> updateVector(@PathVariable String collectionName, @RequestBody QdrantVectorRQ request) {
+        return qdrantService.updateVector(collectionName, request)
+                .map(result -> ResponseEntity.ok("Vector updated with ID: " + request.getId()))
+                .onErrorResume(e -> Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body("Failed to update vector: " + e.getMessage())));
     }
 
-
     @GetMapping("/{collectionName}/vector/count")
-    public ResponseEntity<Long> countPoints(@PathVariable String collectionName) throws ExecutionException, InterruptedException {
-        return ResponseEntity.ok(qdrantService.pointsCount(collectionName));
+    public Mono<ResponseEntity<Long>> countPoints(@PathVariable String collectionName) {
+        return qdrantService.pointsCount(collectionName)
+                .map(ResponseEntity::ok)
+                .onErrorResume(e -> Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()));
     }
 }
