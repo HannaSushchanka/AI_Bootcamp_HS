@@ -1,4 +1,4 @@
-package com.company.bootcamp.task3.configuration;
+package com.company.bootcamp.task5.configuration;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -31,4 +31,7 @@ public class OpenAIConfiguration {
 
     @Value("${max_tokens}")
     private int maxTokens;
+
+    @Value("${embeddings-deployment-name}")
+    private String embeddingsModel;
 }

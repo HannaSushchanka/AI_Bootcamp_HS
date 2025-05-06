@@ -1,18 +1,18 @@
-package com.company.bootcamp.task3.configuration;
+package com.company.bootcamp.task5.configuration;
 
 import com.azure.ai.openai.OpenAIAsyncClient;
 import com.azure.ai.openai.OpenAIClientBuilder;
 import com.azure.core.credential.AzureKeyCredential;
-import com.company.bootcamp.task3.plugins.SimplePlugin;
 
+import com.company.bootcamp.task5.configuration.plugin.SimplePlugin;
 import com.microsoft.semantickernel.Kernel;
 import com.microsoft.semantickernel.aiservices.openai.chatcompletion.OpenAIChatCompletion;
+import com.microsoft.semantickernel.aiservices.openai.textembedding.OpenAITextEmbeddingGenerationService;
 import com.microsoft.semantickernel.orchestration.InvocationContext;
 import com.microsoft.semantickernel.orchestration.PromptExecutionSettings;
 import com.microsoft.semantickernel.plugin.KernelPlugin;
 import com.microsoft.semantickernel.plugin.KernelPluginFactory;
 import com.microsoft.semantickernel.services.chatcompletion.ChatCompletionService;
-import com.microsoft.semantickernel.services.chatcompletion.ChatHistory;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -59,15 +59,15 @@ public class SemanticKernelConfiguration {
                 .build();
     }
 
-    /**
+ /**
      * Creates a {@link KernelPlugin} bean using a simple plugin.
      *
      * @return an instance of {@link KernelPlugin}
      */
     @Bean
-    public KernelPlugin kernelPlugin(OpenAIAsyncClient openAIAsyncClient) {
+    public KernelPlugin kernelPlugin() {
         return KernelPluginFactory.createFromObject(
-                new SimplePlugin(openAIAsyncClient), "Simple Plugin");
+                new SimplePlugin(), "Simple Plugin");
     }
 
     /**
@@ -78,10 +78,11 @@ public class SemanticKernelConfiguration {
      * @return an instance of {@link Kernel}
      */
     @Bean
-    public Kernel kernel(ChatCompletionService chatCompletionService, KernelPlugin kernelPlugin) {
+    public Kernel kernel(ChatCompletionService chatCompletionService, KernelPlugin kernelPlugin, KernelPlugin triathlonWorkoutsKernelPlugin) {
         return Kernel.builder()
                 .withAIService(ChatCompletionService.class, chatCompletionService)
                 .withPlugin(kernelPlugin)
+                .withPlugin(triathlonWorkoutsKernelPlugin)
                 .build();
     }
 
@@ -115,10 +116,10 @@ public class SemanticKernelConfiguration {
                 .build());
     }
 
-    @Bean
-    public ChatHistory chatHistory() {
-        return new ChatHistory();
+    @Bean(name = "textEmbeddingKernel")
+    public Kernel textEmbeddingKernel(OpenAIAsyncClient client) {
+        return Kernel.builder().withAIService(OpenAITextEmbeddingGenerationService.class, OpenAITextEmbeddingGenerationService.builder()
+                .withModelId(configuration.getEmbeddingsModel()).withOpenAIAsyncClient(client).build()).build();
     }
-
 }
 
