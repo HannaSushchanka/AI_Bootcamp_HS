@@ -10,7 +10,7 @@
     </root>
 
     <!-- Example to increase logging level for a specific package -->
-    <logger name="com.company.bootcamp.task3" level="DEBUG" additivity="false">
+    <logger name="com.company.bootcamp.task5" level="DEBUG" additivity="false">
         <appender-ref ref="STDOUT" />
     </logger>
 </configuration>
