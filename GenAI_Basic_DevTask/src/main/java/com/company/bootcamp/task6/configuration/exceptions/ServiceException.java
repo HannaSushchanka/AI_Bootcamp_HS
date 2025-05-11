@@ -1,7 +1,7 @@
-package com.company.bootcamp.task5.configuration.exceptions;
+package com.company.bootcamp.task6.configuration.exceptions;
 
 import lombok.Getter;
-import com.company.bootcamp.task5.model.ErrorResponse;
+import com.company.bootcamp.task6.model.ErrorResponse;
 
 @Getter
 public class ServiceException extends Exception {

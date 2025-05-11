@@ -1,4 +1,4 @@
-package com.company.bootcamp.task5.controllers;
+package com.company.bootcamp.task6.controllers;
 
 import java.util.List;
 import java.util.Map;
@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.company.bootcamp.task5.model.QdrantVectorRS;
-import com.company.bootcamp.task5.services.EmbeddingService;
+import com.company.bootcamp.task6.model.QdrantVectorRS;
+import com.company.bootcamp.task6.services.EmbeddingService;
 import com.microsoft.semantickernel.services.textembedding.Embedding;
 
 import lombok.extern.slf4j.Slf4j;

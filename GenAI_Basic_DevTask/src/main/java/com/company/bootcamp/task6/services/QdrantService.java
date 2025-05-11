@@ -1,4 +1,4 @@
-package com.company.bootcamp.task5.services;
+package com.company.bootcamp.task6.services;
 
 import java.util.List;
 import java.util.UUID;
@@ -8,7 +8,8 @@ import java.util.concurrent.Executors;
 
 import org.springframework.stereotype.Service;
 
-import com.company.bootcamp.task5.model.QdrantVectorRQ;
+import com.company.bootcamp.task6.clients.GRPSQdrantClient;
+import com.company.bootcamp.task6.model.QdrantVectorRQ;
 import com.microsoft.semantickernel.services.textembedding.Embedding;
 
 import io.qdrant.client.QdrantClient;

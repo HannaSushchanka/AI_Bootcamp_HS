@@ -1,4 +1,4 @@
-package com.company.bootcamp.task5.configuration.plugin;
+package com.company.bootcamp.task6.configuration.plugin;
 
 import com.microsoft.semantickernel.semanticfunctions.annotations.DefineKernelFunction;
 import com.microsoft.semantickernel.semanticfunctions.annotations.KernelFunctionParameter;

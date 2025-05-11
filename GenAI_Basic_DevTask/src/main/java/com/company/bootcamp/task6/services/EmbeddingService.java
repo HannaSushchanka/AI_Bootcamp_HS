@@ -1,16 +1,16 @@
-package com.company.bootcamp.task5.services;
+package com.company.bootcamp.task6.services;
 
-import com.company.bootcamp.task5.model.QdrantVectorRQ;
-import com.company.bootcamp.task5.model.QdrantVectorRS;
+import com.company.bootcamp.task6.clients.OpenAIClient;
+import com.company.bootcamp.task6.clients.GRPSQdrantClient;
+import com.company.bootcamp.task6.model.QdrantVectorRQ;
+import com.company.bootcamp.task6.model.QdrantVectorRS;
 
-import com.google.common.util.concurrent.ListenableFuture;
 import com.microsoft.semantickernel.Kernel;
 import com.microsoft.semantickernel.aiservices.openai.textembedding.OpenAITextEmbeddingGenerationService;
 import com.microsoft.semantickernel.services.ServiceNotFoundException;
 import com.microsoft.semantickernel.services.textembedding.Embedding;
 
 import io.qdrant.client.grpc.JsonWithInt;
-import io.qdrant.client.grpc.Points;
 import io.qdrant.client.grpc.Points.PointStruct;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
@@ -23,8 +23,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import static io.qdrant.client.PointIdFactory.id;
@@ -37,10 +35,14 @@ import static io.qdrant.client.VectorsFactory.vectors;
 public class EmbeddingService {
     private static final String COLLECTION_NAME = "openai_vectors";
 
+    private final OpenAIClient openAIClient;
+    private final GRPSQdrantClient qdrantClient;
     private final QdrantService qdrantService;
     private final Kernel kernel;
 
-    public EmbeddingService(@Qualifier("textEmbeddingKernel") Kernel kernel, QdrantService qdrantService) {
+    public EmbeddingService(OpenAIClient openAIClient, GRPSQdrantClient qdrantClient, @Qualifier("textEmbeddingKernel") Kernel kernel, QdrantService qdrantService) {
+        this.openAIClient = openAIClient;
+        this.qdrantClient = qdrantClient;
         this.kernel = kernel;
         this.qdrantService = qdrantService;
     }
@@ -95,7 +97,15 @@ public class EmbeddingService {
                         .build()).toList());
     }
 
+    public Mono<Void> getEmbeddingAndStore(List<String> chunks) {
+        return Flux.fromIterable(chunks)
+                .flatMap(chunk -> {
+                    System.out.println("Storing embedding for chunk: " + chunk);
+                    return Mono.empty();
+                })
+                .then();
 
+    }
     /**
      * Constructs a point structure from a list of float values representing a vector.
      *

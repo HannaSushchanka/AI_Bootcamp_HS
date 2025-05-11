@@ -1,4 +1,4 @@
-package com.company.bootcamp.task5.model;
+package com.company.bootcamp.task6.model;
 
 import java.util.List;
 import java.util.Map;

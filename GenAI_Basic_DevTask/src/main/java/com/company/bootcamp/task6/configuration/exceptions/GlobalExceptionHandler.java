@@ -1,8 +1,8 @@
-package com.company.bootcamp.task5.configuration.exceptions;
+package com.company.bootcamp.task6.configuration.exceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import  com.company.bootcamp.task5.model.ErrorResponse;
+import  com.company.bootcamp.task6.model.ErrorResponse;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
