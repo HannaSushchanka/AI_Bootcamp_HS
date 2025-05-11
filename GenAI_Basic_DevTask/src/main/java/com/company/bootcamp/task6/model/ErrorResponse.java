@@ -1,4 +1,4 @@
-package com.company.bootcamp.task5.model;
+package com.company.bootcamp.task6.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -1,4 +1,4 @@
-package com.company.bootcamp.task5.configuration.initializer;
+package com.company.bootcamp.task6.configuration.initializer;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;

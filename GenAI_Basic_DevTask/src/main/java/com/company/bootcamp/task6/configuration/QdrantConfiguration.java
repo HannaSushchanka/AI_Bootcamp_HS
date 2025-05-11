@@ -1,4 +1,4 @@
-package com.company.bootcamp.task5.configuration;
+package com.company.bootcamp.task6.configuration;
 
 import io.qdrant.client.QdrantClient;
 import io.qdrant.client.QdrantGrpcClient;

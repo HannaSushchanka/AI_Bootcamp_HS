@@ -1,10 +1,10 @@
-package com.company.bootcamp.task5.configuration;
+package com.company.bootcamp.task6.configuration;
 
 import com.azure.ai.openai.OpenAIAsyncClient;
 import com.azure.ai.openai.OpenAIClientBuilder;
 import com.azure.core.credential.AzureKeyCredential;
 
-import com.company.bootcamp.task5.configuration.plugin.SimplePlugin;
+import com.company.bootcamp.task6.configuration.plugin.SimplePlugin;
 import com.microsoft.semantickernel.Kernel;
 import com.microsoft.semantickernel.aiservices.openai.chatcompletion.OpenAIChatCompletion;
 import com.microsoft.semantickernel.aiservices.openai.textembedding.OpenAITextEmbeddingGenerationService;

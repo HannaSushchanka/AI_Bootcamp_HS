@@ -1,7 +1,7 @@
-package com.company.bootcamp.task5.controllers;
+package com.company.bootcamp.task6.controllers;
 
-import com.company.bootcamp.task5.model.QdrantVectorRQ;
-import com.company.bootcamp.task5.services.QdrantService;
+import com.company.bootcamp.task6.model.QdrantVectorRQ;
+import com.company.bootcamp.task6.services.QdrantService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
